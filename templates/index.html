@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NetWatch - Network Monitoring</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<nav class="navbar navbar-dark bg-dark mb-4">
+  <div class="container">
+    <span class="navbar-brand mb-0 h1">NetWatch</span>
+    <span class="text-secondary small">Cloud-Based Network Monitoring &amp; Troubleshooting</span>
+  </div>
+</nav>
+
+<div class="container" style="max-width: 900px;">
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <form method="post" class="row g-2">
+        <div class="col-md-10">
+          <input name="host" class="form-control form-control-lg"
+                 placeholder="Enter domain or IP (e.g. google.com)" required>
+        </div>
+        <div class="col-md-2 d-grid">
+          <button class="btn btn-primary btn-lg">Check</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  {% if r %}
+  <div class="card shadow-sm mb-4">
+    <div class="card-header d-flex justify-content-between">
+      <strong>{{ r.host }}</strong>
+      <span class="badge {{ 'bg-success' if r.status == 'UP' else 'bg-danger' }} fs-6">{{ r.status }}</span>
+    </div>
+    <div class="card-body">
+      <div class="row text-center mb-3">
+        <div class="col-6 col-md-3"><div class="text-muted small">IP Address</div><div class="fw-bold">{{ r.ip or 'DNS failed' }}</div></div>
+        <div class="col-6 col-md-3"><div class="text-muted small">HTTP Code</div><div class="fw-bold">{{ r.code }}</div></div>
+        <div class="col-6 col-md-3"><div class="text-muted small">Latency</div><div class="fw-bold">{{ r.ms ~ ' ms' if r.ms is not none else '-' }}</div></div>
+        <div class="col-6 col-md-3"><div class="text-muted small">Checked at</div><div class="fw-bold small">{{ r.time }}</div></div>
+      </div>
+      <div class="mb-3">
+        Port 80: <span class="badge {{ 'bg-success' if r.p80 else 'bg-secondary' }}">{{ 'Open' if r.p80 else 'Closed' }}</span>
+        Port 443: <span class="badge {{ 'bg-success' if r.p443 else 'bg-secondary' }}">{{ 'Open' if r.p443 else 'Closed' }}</span>
+      </div>
+      <div class="alert {{ 'alert-success' if r.status == 'UP' else 'alert-warning' }} mb-0">
+        <strong>Troubleshooting:</strong> {{ r.tip }}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="card shadow-sm mb-5">
+    <div class="card-header"><strong>Recent Checks</strong></div>
+    <div class="table-responsive">
+      <table class="table table-sm table-hover mb-0">
+        <thead><tr><th>Time</th><th>Host</th><th>IP</th><th>Status</th><th>Latency</th></tr></thead>
+        <tbody>
+        {% for h in history %}
+          <tr>
+            <td>{{ h.time }}</td><td>{{ h.host }}</td><td>{{ h.ip or '-' }}</td>
+            <td><span class="badge {{ 'bg-success' if h.status == 'UP' else 'bg-danger' }}">{{ h.status }}</span></td>
+            <td>{{ h.ms ~ ' ms' if h.ms is not none else '-' }}</td>
+          </tr>
+        {% else %}
+          <tr><td colspan="5" class="text-center text-muted">No checks yet</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</body>
+</html>
